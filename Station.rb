@@ -2,44 +2,29 @@
 
 
 class Station
-  attr_reader :name, :freights, :passeng
+  attr_reader :name
 
   def initialize(name)
     @name = name
-    @freights = []
-    @passeng = []
-    @all = []
+    @trains = []
   end
 
-  def show_all
-    @all.each { |train| puts train.num }
+  def show_trains
+    @trains.each { |train| puts train.num }
   end
 
-  def show_fr
-    @freights.each { |train| puts train.num }
-  end
-
-  def show_ps
-    @passeng.each { |train| puts train.num }
+  def show_trains_by(type)
+    typed = @trains.filter { |train| train.type == type }
+    typed.each { |train| puts train.num }
   end
 
   def train_departure(train)
-    @all.delete(train)
-    if train.type == 'freg'
-      @freights.delete(train)
-    else
-      @passeng.delete(train)
-      train.go
-    end
+    @trains.delete(train)
+    train.go
   end
 
   def train_arrive(train)
-    @all.push(train)
-    if train.type == 'freg'
-      @freights.push(train)
-    else
-      @passeng.push(train)
-    end
+    @trains.push(train)
     train.stop
   end
 end

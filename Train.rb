@@ -24,7 +24,7 @@ class Train
     puts "current_speed: #{@speed}"
   end
 
-  def p_van
+  def add_van
     if @speed.zero?
       @num_of_van += 1
     else
@@ -32,7 +32,7 @@ class Train
     end
   end
 
-  def m_van
+  def del_van
     if @speed.zero? && @num_of_van > 0
       @num_of_van -= 1
     else
@@ -42,32 +42,31 @@ class Train
 
   def route_set(route)
     @route = route
-    self.cur_stat(@route.stations[0])
+    station_change(0)
   end
 
-  def cur_stat(station)
-    @cur_stat = station
-    @cur_stat.train_arrive(self)
-    @stat_num = @route.stations.index(@cur_stat)
+  def station_change(num)
+    @current_station = num
+    @route.stations[num].train_arrive(self)
   end
 
   def next_station
-    if @route.stations.index(@cur_stat) < @route.stations.size - 1
-      @cur_stat.train_departure(self)
-      cur_stat(@route.stations[@stat_num + 1])
+    if @current_station < @route.stations.size - 1
+      @route.stations[@current_station].train_departure(self)
+      station_change(@current_station + 1)
     end
   end
 
   def prev_station
-    if @route.stations.index(@cur_stat) > 0
-      @cur_stat.train.departure(self)
-      cur_stat(@route.stations[@stat_num - 1])
+    if @current_station > 0
+      @route.stations[current_station].train.departure(self)
+      station_change(@current_station - 1)
     end
   end
 
-  def near_stat
-    puts "current station: #{@cur_stat.name}"
-    puts "next_station: #{@route.stations[@stat_num + 1].name}" if @stat_num != @route.stations.size
-    puts "prev_station: #{@route.stations[@stat_num - 1].name}" if @stat_num != 0
+  def near_stations
+    puts "current station: #{@route.stations[@current_station].name}"
+    puts "next station: #{@route.stations[@current_station + 1].name}" if @current_station != @route.stations.size
+    puts "previous station: #{@route.stations[@current_station - 1].name}" if @current_station != 0
   end
 end
