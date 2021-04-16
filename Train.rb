@@ -45,28 +45,34 @@ class Train
     station_change(0)
   end
 
-  def station_change(num)
-    @current_station = num
-    @route.stations[num].train_arrive(self)
-  end
-
-  def next_station
+  def forward_move
     if @current_station < @route.stations.size - 1
       @route.stations[@current_station].train_departure(self)
       station_change(@current_station + 1)
     end
   end
 
-  def prev_station
+  def backward_move
     if @current_station > 0
       @route.stations[current_station].train.departure(self)
       station_change(@current_station - 1)
     end
   end
 
-  def near_stations
-    puts "current station: #{@route.stations[@current_station].name}"
+  def station_change(num)
+    @current_station = num
+    @route.stations[num].train_arrive(self)
+  end
+
+  def next_station
     puts "next station: #{@route.stations[@current_station + 1].name}" if @current_station != @route.stations.size
+  end
+
+  def prev_station
     puts "previous station: #{@route.stations[@current_station - 1].name}" if @current_station != 0
+  end
+
+  def current_station
+    puts "current station: #{@route.stations[@current_station].name}"
   end
 end
