@@ -13,10 +13,10 @@ class Route
   end
 
   def del_stat(station)
-    @stations.delete(station)
+    @stations.delete(station) if station != stations.first && station != stations.last
   end
 
-  def add_stat(station1, station2)
-    @stations.insert(station1, station2)
+  def add_stat(num, station2)
+    @stations.insert(num, station2) if num != 0 && num < stations.size
   end
 end

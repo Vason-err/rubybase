@@ -2,7 +2,7 @@
 
 
 class Train
-  attr_reader :num, :num_of_van
+  attr_reader :num, :num_of_van, :current_speed
   attr_accessor :type
 
   def initialize(num, type, num_of_van)
@@ -13,15 +13,11 @@ class Train
   end
 
   def go
-    @speed = 50
+    @current_speed = 50
   end
 
   def stop
-    @speed = 0
-  end
-
-  def current_speed
-    puts "current_speed: #{@speed}"
+    @current_speed = 0
   end
 
   def add_van
@@ -65,14 +61,14 @@ class Train
   end
 
   def next_station
-    puts "next station: #{@route.stations[@current_station + 1].name}" if @current_station != @route.stations.size
+    @route.stations[@current_station + 1] if @current_station != @route.stations.size - 1
   end
 
   def prev_station
-    puts "previous station: #{@route.stations[@current_station - 1].name}" if @current_station != 0
+    @route.stations[@current_station - 1] if @current_station != 0
   end
 
   def current_station
-    puts "current station: #{@route.stations[@current_station].name}"
+    @route.stations[@current_station]
   end
 end
