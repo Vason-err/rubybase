@@ -8,15 +8,15 @@ class Route
     @stations = [first, last] 
   end
 
-  def stations_all
+  def show_all_stations
     @stations.each { |station| puts station.name }
   end
 
-  def del_stat(station)
+  def delete(station)
     @stations.delete(station) if station != stations.first && station != stations.last
   end
 
-  def add_stat(num, station2)
-    @stations.insert(num, station2) if num != 0 && num < stations.size
+  def add(station)
+    @stations.insert(-2, station)
   end
 end

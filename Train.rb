@@ -2,17 +2,66 @@
 
 
 class Train
-  attr_reader :num, :num_of_van, :current_speed
-  attr_accessor :type
+  attr_reader :num, :current_speed, :type, :wagons
 
-  def initialize(num, type, num_of_van)
+  def initialize(num)
     @num = num
-    @type = type
-    @num_of_van = num_of_van
     @speed = 0
+    @wagons = []
   end
 
-  def go
+  def set_on(route)
+    @route = route
+    station_change(0)
+  end
+
+  def forward
+    unless next_station.nil?
+      @route.stations[@current_station_index].send :train_departure, self
+      station_change(@current_station_index + 1)
+    end
+  end
+
+  def back
+    unless prev_station.nil?
+      @route.stations[current_station_index].send :train_departure, self
+      station_change(@current_station_index - 1)
+    end
+  end
+
+
+  def next_station
+    @route.stations[@current_station_index + 1] if @current_station_index != @route.stations.size - 1
+  end
+
+  def prev_station
+    @route.stations[@current_station_index - 1] if @current_station_index != 0
+  end
+
+  def current_station
+    @route.stations[@current_station_index]
+  end
+
+  def hitch(wagon)
+    if @speed.zero? && wagon.type == @type
+      @wagons.push(wagon)
+      wagon.send :attach_to, self
+    else
+      puts 'The train is moving'
+    end
+  end
+
+  def unhook(wagon)
+    if @speed.zero?
+      @wagons.delete(wagon)
+      wagon.send :unhook_from, self
+    else
+      puts 'The train is moving'
+    end
+  end
+
+  protected
+    def go
     @current_speed = 50
   end
 
@@ -20,55 +69,9 @@ class Train
     @current_speed = 0
   end
 
-  def add_van
-    if @speed.zero?
-      @num_of_van += 1
-    else
-      puts 'The train is moving'
-    end
+  def station_change(num) #user not allowed to change station for train
+    @current_station_index = num #cause train can move only by one station forward of back
+    @route.stations[num].send :train_arrive, self
   end
 
-  def del_van
-    if @speed.zero? && @num_of_van > 0
-      @num_of_van -= 1
-    else
-      puts 'The train is moving'
-    end
-  end
-
-  def route_set(route)
-    @route = route
-    station_change(0)
-  end
-
-  def forward_move
-    if @current_station < @route.stations.size - 1
-      @route.stations[@current_station].train_departure(self)
-      station_change(@current_station + 1)
-    end
-  end
-
-  def backward_move
-    if @current_station > 0
-      @route.stations[current_station].train.departure(self)
-      station_change(@current_station - 1)
-    end
-  end
-
-  def station_change(num)
-    @current_station = num
-    @route.stations[num].train_arrive(self)
-  end
-
-  def next_station
-    @route.stations[@current_station + 1] if @current_station != @route.stations.size - 1
-  end
-
-  def prev_station
-    @route.stations[@current_station - 1] if @current_station != 0
-  end
-
-  def current_station
-    @route.stations[@current_station]
-  end
 end

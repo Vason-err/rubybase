@@ -17,14 +17,15 @@ class Station
     typed = @trains.filter { |train| train.type == type }
     typed.each { |train| puts train.num }
   end
-
+  private
+  #user is not allowed to move train from station manually 
   def train_departure(train)
     @trains.delete(train)
-    train.go
+    train.send :go
   end
 
   def train_arrive(train)
     @trains.push(train)
-    train.stop
+    train.send :stop
   end
 end
