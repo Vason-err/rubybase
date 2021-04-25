@@ -1,0 +1,15 @@
+require_relative 'Station'
+require_relative 'Route'
+require_relative 'Train'
+require_relative 'Train_cargo'
+require_relative 'Train_passen'
+require_relative 'Wagon'
+require_relative 'Wagon_cargo'
+require_relative 'Wagon_passen'
+require_relative 'RailRoad'
+puts 'To create new RailRoad enter name_of_RailRoad = RailRoad.new'
+puts 'like rr1 = RailRoad.new'
+puts 'To view info about RailRoad and do some operations enter name_of_RailRoad.info'
+puts 'for example rr1.info'
+
+
