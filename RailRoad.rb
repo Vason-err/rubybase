@@ -105,26 +105,6 @@ class RailRoad
     end
   end
 
-  def seed
-    @stations << Station.new('fres')
-    @stations << Station.new('downtown')
-    @stations << Station.new('gregory')
-    @stations << Station.new('Vodsan')
-    @stations << Station.new('Moscow')
-    @routes << Route.new(@stations[0], stations[2])
-    @routes[0].add(@stations[1])
-    @routes << Route.new(@stations[1], @stations[3])
-    @routes[1].add(@stations[4])
-    @trains << Train_passen.new(12)
-    @trains << Train_cargo.new(10)
-    @trains[0].set_on(@routes[0])
-    @trains[1].set_on(@routes[1])
-    @wagons << Wagon_passen.new(23)
-    @wagons << Wagon_cargo.new(13)
-    @trains[0].hitch(@wagons[0])
-    @trains[1].hitch(@wagons[1])
-  end
-
   private
 
   attr_writer :stations, :routes, :trains, :wagons #so that the user does not fill the array
