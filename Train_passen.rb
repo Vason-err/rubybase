@@ -4,5 +4,4 @@ class Train_passen < Train
     super 
     @type = 'passen'
   end
-
 end

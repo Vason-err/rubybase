@@ -19,4 +19,5 @@ class Route
   def add(station)
     @stations.insert(-2, station)
   end
+
 end

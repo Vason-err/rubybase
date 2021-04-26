@@ -4,5 +4,4 @@ class Train_cargo < Train
     super 
     @type = 'cargo'
   end
-
 end

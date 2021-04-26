@@ -29,7 +29,6 @@ class Train
     end
   end
 
-
   def next_station
     @route.stations[@current_station_index + 1] if @current_station_index != @route.stations.size - 1
   end
@@ -45,7 +44,6 @@ class Train
   def hitch(wagon)
     if @speed.zero? && wagon.type == @type
       @wagons.push(wagon)
-      wagon.send :attach_to, self
     else
       puts 'The train is moving'
     end
@@ -54,13 +52,13 @@ class Train
   def unhook(wagon)
     if @speed.zero?
       @wagons.delete(wagon)
-      wagon.send :unhook_from, self
     else
       puts 'The train is moving'
     end
   end
 
   protected
+
     def go
     @current_speed = 50
   end
@@ -73,5 +71,4 @@ class Train
     @current_station_index = num #cause train can move only by one station forward of back
     @route.stations[num].send :train_arrive, self
   end
-
 end

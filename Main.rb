@@ -11,5 +11,3 @@ puts 'To create new RailRoad enter name_of_RailRoad = RailRoad.new'
 puts 'like rr1 = RailRoad.new'
 puts 'To view info about RailRoad and do some operations enter name_of_RailRoad.info'
 puts 'for example rr1.info'
-
-
