@@ -5,7 +5,6 @@ class Station
   include InstanceCounter
   attr_reader :name
 
-  @@stations = []
   def self.all
     @@stations ||= []
   end
