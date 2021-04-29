@@ -1,13 +1,26 @@
 # ./Train.rb
 
-
 class Train
+  include Company
+  include InstanceCounter
   attr_reader :num, :current_speed, :type, :wagons
+
+  class << self
+    def all
+      @@all ||= []
+    end
+
+    def find(num)
+      puts @@all.find { |train| train.num.eql?(num) }
+    end
+  end
 
   def initialize(num)
     @num = num
     @speed = 0
     @wagons = []
+    self.class.all << self
+    self.register_instance
   end
 
   def set_on(route)
