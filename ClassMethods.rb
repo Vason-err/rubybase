@@ -1,5 +1,10 @@
 module ClassMethods
+
   def instances
-    self.class_variable_get :@@instances
+    @instances ||= 0
   end
+
+  protected
+  
+  attr_writer :instances
 end
