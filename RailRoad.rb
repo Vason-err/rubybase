@@ -1,6 +1,9 @@
 class RailRoad
   attr_reader :stations, :routes, :trains, :wagons
 
+  NUMBER_FORMAT = /^[a-z0-9]{3}[-]*[a-z0-9]{2}$/i
+  NUM_FOR = /^\d+$/
+
   def initialize
     @stations = []
     @routes = []
@@ -35,13 +38,33 @@ class RailRoad
     num = gets.chomp.to_i
     case num
     when 1
-      new_train
+      begin
+        new_train
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     when 2
-      new_station
+      begin
+        new_station
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     when 3
-      new_route
+      begin
+        new_route
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     when 4
-      new_wagon
+      begin
+        new_wagon
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     end
   end
 
@@ -55,17 +78,47 @@ class RailRoad
     num = gets.chomp.to_i
     case num
     when 1
-      station_add_to_route
+      begin
+        station_add_to_route
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     when 2
-      station_delete_from_route
+      begin
+        station_delete_from_route
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     when 3
-      set_route_to_train
+      begin
+        set_route_to_train
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     when 4
-      wagon_hitch
+      begin
+        wagon_hitch
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     when 5
-      wagon_delete
+      begin
+        wagon_delete
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     when 6
-      move_train
+      begin
+        move_train
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     end
   end
 
@@ -111,13 +164,14 @@ class RailRoad
   #in the array with garbage
   
   def new_train
-    puts 'Enter the number for train and its type:'
-    num = gets.chomp.to_i
+    puts 'Enter the number for train:'
+    number = gets.chomp
+    puts 'Enter the train type(cargo or passen):'
     type = gets.chomp
     if type.include?('passen')
-      @trains << Train_passen.new(num)
+      @trains << Train_passen.new(number)
     else
-      @trains << Train_cargo.new(num)
+      @trains << Train_cargo.new(number)
     end
   end
 
@@ -129,18 +183,17 @@ class RailRoad
 
   def new_route
     puts 'Enter the numbers of first and last stations in new route:'
-    num1 = gets.chomp.to_i
-    num2 = gets.chomp.to_i
-    if station?(num1) && station?(num2)
-      @routes << Route.new(@stations[num1], @stations[num2])
-    else
-      puts 'There is no stations like this'
-    end
+    num1 = gets.chomp
+    num2 = gets.chomp
+    station_valid?(num1)
+    station_valid?(num2)
+    @routes << Route.new(@stations[num1.to_i], @stations[num2.to_i])
   end
 
   def new_wagon
-    puts 'Enter the number of wagon and its type'
-    num = gets.chomp.to_i
+    puts 'Enter the number of wagon:'
+    num = gets.chomp
+    puts 'Enter the wagon type(cargo or passen):'
     type = gets.chomp
     if type.include?('passen')
       @wagons << Wagon_passen.new(num)
@@ -151,87 +204,83 @@ class RailRoad
 
   def station_add_to_route
     puts 'Enter number of route to add station, and number of station:'
-    num1 = gets.chomp.to_i
-    num2 = gets.chomp.to_i
-    if route?(num1) && station?(num2)
-      @routes[num1].add(@stations[num2])
-    else
-      puts 'There is no route or station like this'
-    end
+    num1 = gets.chomp
+    num2 = gets.chomp
+    route_valid?(num1)
+    station_valid?(num2)
+    @routes[num1.to_i].add(@stations[num2.to_i])
   end
 
   def station_delete_from_route
     puts 'Enter number of route in which station will be deleted and number of station:'
-    num1 = gets.chomp.to_i
-    num2 = gets.chomp.to_i
-    if route?(num1) && station?(num2)
-      @routes[num1].delete(@stations[num2])
-    else
-      puts 'There is no route or station like this'
-    end
+    num1 = gets.chomp
+    num2 = gets.chomp
+    route_valid?(num1)
+    station_valid?(num2)
+    @routes[num1.to_i].delete(@stations[num2.to_i])
   end
 
   def set_route_to_train
     puts 'Enter number of train which will be set on route, and number of route:'
-    num1 = gets.chomp.to_i
-    num2 = gets.chomp.to_i
-    if train?(num1) && route?(num2)
-      @trains[num1].set_on(@routes[num2])
-    else
-      puts 'There is no train or route like this'
-    end
+    num1 = gets.chomp
+    num2 = gets.chomp
+    train_valid?(num1)
+    route_valid?(num2)
+    @trains[num1.to_i].set_on(@routes[num2.to_i])
   end
 
   def wagon_hitch
     puts 'Enter number of train to which the wagon will be attached and the number of wagon:'
-    num1 = gets.chomp.to_i
-    num2 = gets.chomp.to_i
-    if train?(num1) && wagon?(num2)
-      @trains[num1].hitch(@wagons[num2])
-    else
-      puts 'There is no train or wagon like this'
-    end
+    num1 = gets.chomp
+    num2 = gets.chomp
+    train_valid?(num1)
+    wagon_valid?(num2)
+    @trains[num1.to_i].hitch(@wagons[num2.to_i])
   end
 
   def wagon_delete
     puts 'Enter the number of train from which the wagon will be unhooked and the number of wagon:'
-    num1 = gets.chomp.to_i
-    num2 = gets.chomp.to_i
-    if train?(num1) && wagon?(num2)
-      @trains[num1].unhook(@wagons[num2])
-    else
-      puts 'There is no train or wagon like this'
-    end
+    num1 = gets.chomp
+    num2 = gets.chomp
+    train_valid?(num1)
+    wagon_valid?(num2)
+    @trains[num1.to_i].unhook(@wagons[num2.to_i])
   end
 
   def move_train
     puts 'Enter the number of train to move, and the direction of movement(forward or back):'
-    num = gets.chomp.to_i
+    num = gets.chomp
     direction = gets.chomp
-    if train?(num)
-      if direction.include?('forward')
-        @trains[num].forward
-      else
-        @trains[num].back
-      end
+    train_valid?(num)
+    if direction.include?('forward')
+      @trains[num.to_i].forward
     else
-      puts 'There is no train like this'
+      @trains[num.to_i].back
     end
   end
 
-  def station?(num)
-    num.between? 0, @stations.size - 1
+  def station_valid?(num)
+    raise "You can't leave this field blank" if num.empty?
+    raise "Incorrect input format" if num !~ NUM_FOR
+    raise "There is no station like this" if !(num.to_i.between? 0, @stations.size - 1)
   end
 
-  def route?(num)
-    num.between? 0, @routes.size - 1 #the user does not need to use these methods
+  def route_valid?(num)
+    raise "You can't leave this field blank" if num.empty?
+    raise "Incorrect input format" if num !~ NUM_FOR
+    raise "There is no route like this!" if !(num.to_i.between? 0, @routes.size - 1) #the user does not need to use these methods
   end
 
-  def train?(num)
-    num.between? 0, @trains.size - 1
+  def train_valid?(num)
+    raise "You can't leave this field blank" if num.empty?
+    raise "Incorrect input format" if num !~ NUM_FOR
+    raise "There is no train like this!" if !(num.to_i.between? 0, @trains.size - 1)
   end
 
-  def wagon?(num)
-    num.between? 0, @wagons. size - 1
+  def wagon_valid?(num)
+    raise "You can't leave this field blank" if num.empty?
+    raise "Incorrect input format" if num !~ NUM_FOR
+    raise "There is no wagon like this!" if !(num.to_i.between? 0, @wagons.size - 1)
   end
+
 end
