@@ -3,11 +3,6 @@ class Wagon
   include Validation
   attr_reader :type, :num
 
-  def initialize(num)
-    @num = num
-    validate!
-  end
-
   protected
 
   def validate!

@@ -68,9 +68,17 @@ class Train
     @wagons.delete(wagon)
   end
 
+  def each_wagon
+    @wagons.each { |wagon| yield(wagon) } if block_given?
+  end
+
+  def print_tr
+    "Train '#{num}', type '#{type}', amount of wagons: '#{wagons.length}'"
+  end
+
   protected
 
-    def go
+  def go
     @current_speed = 50
   end
 
@@ -90,13 +98,13 @@ class Train
   end
 
   def wagon_validate!(wag)
-    raise "The train is moving" if @speed.zero?
+    raise "The train is moving" if !(@speed.zero?)
     raise "The types of wagon and train do not match!" if wag.type != type
     raise "The train already has such wagon!" if wagons.find { |wagon| wagon == wag }
   end
 
   def delete_validate!(wag)
     raise "There is no such wagon in the train!" if !(wagons.find { |wagon| wagon == wag })
-    raise "The train is moving" if @speed.zero?
+    raise "The train is moving" if !(@speed.zero?)
   end
 end

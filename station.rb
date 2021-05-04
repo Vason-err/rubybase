@@ -3,7 +3,7 @@
 class Station
   include InstanceCounter
   include Validation
-  attr_reader :name
+  attr_reader :name, :trains
 
   def self.all
     @@stations ||= []
@@ -25,6 +25,11 @@ class Station
     typed = @trains.filter { |train| train.type == type }
     typed.each { |train| puts train }
   end
+
+  def each_train
+    @trains.each { |train| yield(train) } if block_given?
+  end
+
   private
   #user is not allowed to move train from station manually 
   def train_departure(train)
@@ -40,4 +45,5 @@ class Station
   def validate!
     raise "Name should have at least 4 symbols" if name.length < 4 
   end
+
 end

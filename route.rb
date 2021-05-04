@@ -33,7 +33,7 @@ class Route
     raise "You can't delete first and last stations of the route!" if stat != @first && stat != @last
   end
 
-  def add_validate(stat)
+  def add_validate!(stat)
     raise "The route already has such a station!" if stations.find { |station| station == stat }
   end
 end

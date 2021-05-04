@@ -1,7 +1,7 @@
-class Wagon_cargo < Wagon
+class Train_cargo < Train
 
   def initialize(num)
-    super
+    super 
     @type = 'cargo'
   end
 end
