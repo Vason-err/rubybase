@@ -4,6 +4,6 @@ module InstanceCounter
     base.send :include, InstanceMethods
   end
 
-  require_relative 'ClassMethods'
-  require_relative 'InstanceMethods'
+  require_relative 'class_methods'
+  require_relative 'instance_methods'
 end
