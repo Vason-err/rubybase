@@ -1,4 +1,4 @@
-class Train_passen < Train
+class TrainPassen < Train
 
   def initialize(num)
     super 

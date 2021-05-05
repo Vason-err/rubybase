@@ -72,10 +72,6 @@ class Train
     @wagons.each { |wagon| yield(wagon) } if block_given?
   end
 
-  def print_tr
-    "Train '#{num}', type '#{type}', amount of wagons: '#{wagons.length}'"
-  end
-
   protected
 
   def go

@@ -196,12 +196,12 @@ class RailRoad
     @routes[0].add(@stations[1])
     @routes << Route.new(@stations[1], @stations[3])
     @routes[1].add(@stations[4])
-    @trains << Train_passen.new('pas-12')
-    @trains << Train_cargo.new('car-13')
+    @trains << TrainPassen.new('pas-12')
+    @trains << TrainCargo.new('car-13')
     @trains[0].set_on(@routes[0])
     @trains[1].set_on(@routes[1])
-    @wagons << Wagon_passen.new('12er', 42)
-    @wagons << Wagon_cargo.new('13fr', 200)
+    @wagons << WagonPassen.new('12er', 42)
+    @wagons << WagonCargo.new('13fr', 200)
     @trains[0].hitch(@wagons[0])
     @trains[1].hitch(@wagons[1])
   end
@@ -217,9 +217,9 @@ class RailRoad
     puts 'Enter the train type(cargo or passen):'
     type = gets.chomp
     if type.include?('passen')
-      @trains << Train_passen.new(number)
+      @trains << TrainPassen.new(number)
     else
-      @trains << Train_cargo.new(number)
+      @trains << TrainCargo.new(number)
     end
   end
 
@@ -253,13 +253,13 @@ class RailRoad
   def new_passen_wagon(num)
     puts 'Enter the number of seats in wagon:'
     num1 = gets.chomp.to_i
-    @wagons << Wagon_passen.new(num, num1)
+    @wagons << WagonPassen.new(num, num1)
   end
 
   def new_cargo_wagon(num)
     puts 'Enter the capacity of wagon:'
     num1 = gets.chomp.to_i
-    @wagons << Wagon_passen.new(num, num1)
+    @wagons << WagonCargo.new(num, num1)
   end
 
   def station_add_to_route
@@ -322,20 +322,21 @@ class RailRoad
   def print_all_train_on_station(num)
     puts "Station: #{stations[num].name} (amount of trains: #{stations[num].trains.length})"
     stations[num].each_train do |train|
-      puts train.print_tr
+      print_tr(train)
       puts 'Wagons:'
       train.each_wagon do |wagon|
-        puts wagon.print_wg
+        print_wg(wagon)
       end
     end
   end
 
   def print_trains_with_wagons
     trains.each_with_index do |train, index|
-      puts "#{index}: #{train.print_tr}"
+      puts "#{index}:"
+      print_tr(train)
       puts 'Wagons:'
       train.each_wagon do |wagon|
-        puts wagon.print_wg
+        print_wg(wagon)
       end
     end
   end
@@ -344,15 +345,15 @@ class RailRoad
     puts trains[num].print_tr
     puts 'Wagons:'
     trains[num].each_wagon do |wagon|
-      puts wagon.print_wg
+      print_wg(wagon)
     end
   end
 
   def use_seat
     puts "Enter the number of wagon in which you want to use seat:"
     num = gets.chomp
-    raise "you cant load this wagon, cause its type passen" if wagons[num.to_i].type == 'cargo'
     wagon_valid?(num)
+    passen_valid?(num)
     wagons[num.to_i].use_seat
   end
 
@@ -360,7 +361,7 @@ class RailRoad
     puts "Enter the number of wagon which you want to load:"
     num = gets.chomp
     wagon_valid?(num)
-    raise "you cant use seat in this wagon, cause its type cargo" if wagons[num.to_i].type == 'passen'
+    cargo_valid?(num)
     puts "Enter the volume of load:"
     num1 = gets.chomp.to_i
     wagons[num.to_i].load(num1)
@@ -385,13 +386,25 @@ class RailRoad
       puts "#{index}"
       puts "Station: #{station.name} (amount of trains: #{station.trains.length})"
       station.each_train do |train|
-        puts train.print_tr
+        print_tr(train)
         puts 'Wagons:'
         train.each_wagon do |wagon|
-          puts wagon.print_wg
+          print_wg(wagon)
         end
       end
     end
+  end
+
+  def print_wg(wagon)
+    if wagon.type == 'cargo'
+      puts "Wagon: #{wagon.num}, type: #{wagon.type}, used capacity: #{wagon.used_capacity}, free capacity: #{wagon.free_capacity}"
+    else
+      puts "Wagon: #{wagon.num}, type: #{wagon.type}, used seats: #{wagon.number_of_used_seats}, free seats: #{wagon.number_of_free_seats}"
+    end
+  end
+
+  def print_tr(train)
+    puts "Train: #{train.num}, type: #{train.type}, amount of wagons: #{train.wagons.length}"
   end
 
   def stations_of_route
@@ -423,6 +436,14 @@ class RailRoad
     raise "You can't leave this field blank" if num.empty?
     raise "Incorrect input format" if num !~ NUM_FOR
     raise "There is no wagon like this!" if !(num.to_i.between? 0, @wagons.size - 1)
+  end
+
+  def cargo_valid?(num)
+    raise "you cant use seat in this wagon, cause its type cargo" if wagons[num.to_i].type == 'passen'
+  end
+
+  def passen_valid?(num)
+    raise "you cant load this wagon, cause its type passen" if wagons[num.to_i].type == 'cargo'
   end
 
 end

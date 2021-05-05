@@ -1,4 +1,4 @@
-class Wagon_passen < Wagon
+class WagonPassen < Wagon
   attr_reader :number_of_seats, :seats
 
   def initialize(num, number_of_seats)
@@ -17,17 +17,13 @@ class Wagon_passen < Wagon
   end
 
   def use_seat
-    raise "There is no free seats in this wagon" if number_of_used_seats >= number_of_seats
+    free_seat?
     seats << 1
   end
 
   def leave_seat
-    raise "All seats are free" if number_of_free_seats == number_of_seats
+    used_seat?
     seats.pop
-  end
-
-  def print_wg
-    "Wagon '#{num}', type '#{type}', used seats '#{number_of_used_seats}', free seats '#{number_of_free_seats}'"
   end
 
   protected
@@ -37,5 +33,13 @@ class Wagon_passen < Wagon
   def validate!
     super
     raise "Number of seats in wagon should be greater than 0!" if number_of_seats <= 0
+  end
+
+  def free_seat?
+    raise "There is no free seats in this wagon" if number_of_used_seats >= number_of_seats
+  end
+
+  def used_seat?
+    raise "All seats are free" if number_of_free_seats == number_of_seats
   end
 end
