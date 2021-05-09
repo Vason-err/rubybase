@@ -1,8 +1,6 @@
 class RailRoad
+  include Validation
   attr_reader :stations, :routes, :trains, :wagons
-
-  NUMBER_FORMAT = /^[a-z0-9]{3}[-]*[a-z0-9]{2}$/i
-  NUM_FOR = /^\d+$/
 
   def initialize
     @stations = []
@@ -147,6 +145,8 @@ class RailRoad
     puts 'Enter 6 to show all wagons of particular train'
     puts 'Enter 7 to show list of trains with its wagons'
     puts 'Enter 8 to show list of stations with trains on it'
+    puts 'Enter 9 to show travel history of train'
+    puts 'Enter 10 to show using seats history of wagon'
     num = gets.chomp.to_i
     case num 
     when 1
@@ -183,6 +183,20 @@ class RailRoad
       print_trains_with_wagons
     when 8
       trains_on_stations
+    when 9
+      begin
+        station_history
+      rescue RuntimeError =>e
+        puts "Exception: #{e.message}"
+        retry
+      end
+    when 10
+      begin
+        wagon_using_history
+      rescue RuntimeError => e
+        puts "Exception: #{e.message}"
+        retry
+      end
     end
   end
 
@@ -232,9 +246,9 @@ class RailRoad
   def new_route
     puts 'Enter the numbers of first and last stations in new route:'
     num1 = gets.chomp
+    valid_index(num1, stations)
     num2 = gets.chomp
-    station_valid?(num1)
-    station_valid?(num2)
+    valid_index(num2, stations)
     @routes << Route.new(@stations[num1.to_i], @stations[num2.to_i])
   end
 
@@ -265,45 +279,49 @@ class RailRoad
   def station_add_to_route
     puts 'Enter number of route to add station, and number of station:'
     num1 = gets.chomp
+    valid_index(num1, routes)
     num2 = gets.chomp
-    route_valid?(num1)
-    station_valid?(num2)
+    valid_index(num2, stations)
     @routes[num1.to_i].add(@stations[num2.to_i])
   end
 
   def station_delete_from_route
     puts 'Enter number of route in which station will be deleted and number of station:'
     num1 = gets.chomp
+    valid_index(num1, routes)
     num2 = gets.chomp
-    route_valid?(num1)
-    station_valid?(num2)
+    valid_index(num2, stations)
     @routes[num1.to_i].delete(@stations[num2.to_i])
   end
 
   def set_route_to_train
     puts 'Enter number of train which will be set on route, and number of route:'
     num1 = gets.chomp
+    valid_index(num1, trains)
     num2 = gets.chomp
-    train_valid?(num1)
-    route_valid?(num2)
+    valid_index(num2, routes)
     @trains[num1.to_i].set_on(@routes[num2.to_i])
   end
 
   def wagon_hitch
     puts 'Enter number of train to which the wagon will be attached and the number of wagon:'
     num1 = gets.chomp
+    valid_index(num1, trains)
     num2 = gets.chomp
-    train_valid?(num1)
-    wagon_valid?(num2)
-    @trains[num1.to_i].hitch(@wagons[num2.to_i])
+    valid_index(num2, wagons)
+    if @trains[num1.to_i].type == @wagons[num2.to_i].type
+      @trains[num1.to_i].hitch(@wagons[num2.to_i])
+    else
+      puts "Types are not equal"
+    end
   end
 
   def wagon_delete
     puts 'Enter the number of train from which the wagon will be unhooked and the number of wagon:'
     num1 = gets.chomp
+    valid_index(num1, trains)
     num2 = gets.chomp
-    train_valid?(num1)
-    wagon_valid?(num2)
+    valid_index(num2, wagons)
     @trains[num1.to_i].unhook(@wagons[num2.to_i])
   end
 
@@ -311,7 +329,7 @@ class RailRoad
     puts 'Enter the number of train to move, and the direction of movement(forward or back):'
     num = gets.chomp
     direction = gets.chomp
-    train_valid?(num)
+    valid_index(num, trains)
     if direction.include?('forward')
       @trains[num.to_i].forward
     else
@@ -352,7 +370,7 @@ class RailRoad
   def use_seat
     puts "Enter the number of wagon in which you want to use seat:"
     num = gets.chomp
-    wagon_valid?(num)
+    valid_index(num, wagons)
     passen_valid?(num)
     wagons[num.to_i].use_seat
   end
@@ -360,7 +378,7 @@ class RailRoad
   def load_wagon
     puts "Enter the number of wagon which you want to load:"
     num = gets.chomp
-    wagon_valid?(num)
+    valid_index(num, wagons)
     cargo_valid?(num)
     puts "Enter the volume of load:"
     num1 = gets.chomp.to_i
@@ -370,14 +388,14 @@ class RailRoad
   def trains_on_station
     puts 'Enter the number of station to show all trains on that station:'
     num = gets.chomp
-    station_valid?(num)
+    valid_index(num, stations)
     print_all_train_on_station(num.to_i)
   end
 
   def wagons_of_train
     puts 'Enter the number of train to show its wagons:'
     num = gets.chomp
-    train_valid?(num)
+    valid_index(num, trains)
     print_train_wagons(num.to_i)
   end
 
@@ -397,9 +415,9 @@ class RailRoad
 
   def print_wg(wagon)
     if wagon.type == 'cargo'
-      puts "Wagon: #{wagon.num}, type: #{wagon.type}, used capacity: #{wagon.used_capacity}, free capacity: #{wagon.free_capacity}"
+      puts "Wagon: #{wagon.number}, type: #{wagon.type}, used capacity: #{wagon.used_capacity}, free capacity: #{wagon.free_capacity}"
     else
-      puts "Wagon: #{wagon.num}, type: #{wagon.type}, used seats: #{wagon.number_of_used_seats}, free seats: #{wagon.number_of_free_seats}"
+      puts "Wagon: #{wagon.number}, type: #{wagon.type}, used seats: #{wagon.number_of_used_seats}, free seats: #{wagon.number_of_free_seats}"
     end
   end
 
@@ -410,40 +428,54 @@ class RailRoad
   def stations_of_route
     puts 'Enter the number of route to show its stations:'
     num = gets.chomp
-    route_valid?(num)
+    valid_index(num, routes)
     routes[num.to_i].stations.each_with_index { |station, index| puts "#{index}: #{station.name}" }
   end
 
-  def station_valid?(num)
-    raise "You can't leave this field blank" if num.empty?
-    raise "Incorrect input format" if num !~ NUM_FOR
-    raise "There is no station like this" if !(num.to_i.between? 0, @stations.size - 1)
+  def wagon_using_history
+    puts 'Enter the number of wagon to show its using history'
+    num = gets.chomp
+    valid_index(num, wagons)
+    if wagons[num.to_i].type == 'cargo'
+      capacity_using_history(num.to_i)
+    else
+      seats_using_history(num.to_i)
+    end
   end
 
-  def route_valid?(num)
-    raise "You can't leave this field blank" if num.empty?
-    raise "Incorrect input format" if num !~ NUM_FOR
-    raise "There is no route like this!" if !(num.to_i.between? 0, @routes.size - 1) #the user does not need to use these methods
+  def seats_using_history(num)
+    puts 'Wagon seats using history:'
+    wagons[num].seats_using_history.each_with_index do |seat, index|
+      puts "[#{index}] [#{seat}]"
+    end
   end
 
-  def train_valid?(num)
-    raise "You can't leave this field blank" if num.empty?
-    raise "Incorrect input format" if num !~ NUM_FOR
-    raise "There is no train like this!" if !(num.to_i.between? 0, @trains.size - 1)
+  def capacity_using_history(num)
+    puts 'Wagon capacity using history:'
+    wagons[num].capacity_using_history.each_with_index do |capacity, index|
+      puts "[#{index}] [#{capacity}]"
+    end
   end
 
-  def wagon_valid?(num)
-    raise "You can't leave this field blank" if num.empty?
-    raise "Incorrect input format" if num !~ NUM_FOR
-    raise "There is no wagon like this!" if !(num.to_i.between? 0, @wagons.size - 1)
+  def station_history
+    puts 'Enter number of train to show its travel history'
+    num = gets.chomp
+    valid_index(num, trains)
+    trains[num.to_i].visited_station_history.each_with_index do |station, index|
+      puts "[#{index}] #{station.name}"
+    end
+  end
+
+  def valid_index(index, object)
+    raise "There is no index like this" if index != "#{index.to_i}" || object[index.to_i].nil? || index.nil?
   end
 
   def cargo_valid?(num)
-    raise "you cant use seat in this wagon, cause its type cargo" if wagons[num.to_i].type == 'passen'
+    raise "this wagon type cargo" if wagons[num.to_i].type == 'passen'
   end
 
   def passen_valid?(num)
-    raise "you cant load this wagon, cause its type passen" if wagons[num.to_i].type == 'cargo'
+    raise "this wagon type passen" if wagons[num.to_i].type == 'cargo'
   end
 
 end

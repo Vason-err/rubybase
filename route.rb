@@ -5,10 +5,12 @@ class Route
   include Validation
   attr_reader :stations
 
+  validate :stations, :first_last_uniq, message: 'First and last stations should by different'
+  validate :stations, :each_type, Station
+
   def initialize(first, last)
-    @first = first
-    @last = last
-    @stations = [@first, @last]
+    @stations = [first, last]
+    validate!
     self.register_instance
   end
 
@@ -17,23 +19,11 @@ class Route
   end
 
   def delete(station)
-    delete_validate!(station)
-    @stations.delete(station)
+    @stations.delete(station) if station != stations.first && station != stations.last 
   end
 
   def add(station)
-    add_validate!(station)
-    @stations.insert(-2, station)
+    @stations.insert(-2, station) if !stations.find { |station| station == station }
   end
 
-  protected
-
-  def delete_validate!(stat)
-    raise "The route does not have such a station!" if !(stations.find { |station| station == stat })
-    raise "You can't delete first and last stations of the route!" if stat != @first && stat != @last
-  end
-
-  def add_validate!(stat)
-    raise "The route already has such a station!" if stations.find { |station| station == stat }
-  end
 end

@@ -1,9 +1,16 @@
 # ./Station.rb
-
+require_relative 'company'
+require_relative 'instance_counter'
+require_relative 'validation'
+require_relative 'accessors'
 class Station
   include InstanceCounter
   include Validation
   attr_reader :name, :trains
+  NAME_FORMAT = /^[a-z]{1,30}([ \-][a-z]{1,30})?([ \-][a-z]{1,30})?([ \-][\d]{1,4})?$/i
+
+  validate :name, :type, String
+  validate :name, :format, NAME_FORMAT, message: 'Invalid station name format'
 
   def self.all
     @@stations ||= []
@@ -40,10 +47,6 @@ class Station
   def train_arrive(train)
     @trains.push(train)
     train.send :stop
-  end
-
-  def validate!
-    raise "Name should have at least 4 symbols" if name.length < 4 
   end
 
 end

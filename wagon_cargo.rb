@@ -1,8 +1,10 @@
 class WagonCargo < Wagon
   attr_reader :capacity, :used_capacity
+  attr_accessor_with_history :capacity_using
+  validate :capacity, :positive, message: 'Amount of capacity should be greater than 0'
 
-  def initialize(num, capacity)
-    @num = num
+  def initialize(number, capacity)
+    @number = number
     @type = 'cargo'
     @capacity = capacity
     validate!
@@ -12,11 +14,13 @@ class WagonCargo < Wagon
   def load(volume)
     load_valid?(volume)
     @used_capacity += volume
+    self.capacity_using = self.used_capacity
   end
 
   def unload(volume)
     unload_valid?(volume)
     @used_capacity -= volume
+    self.capacity_using = self.used_capacity
   end
 
   def free_capacity
@@ -26,11 +30,6 @@ class WagonCargo < Wagon
   protected
 
   attr_writer :used_capacity
-
-  def validate!
-    super
-    raise "Amount of capacity should be greater than 0" if capacity <= 0
-  end
 
   def load_valid?(volume)
     raise "Not enough space" if (used_capacity + volume) > capacity
